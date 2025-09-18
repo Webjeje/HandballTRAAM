@@ -23,7 +23,7 @@ https://www.webjeje.com/online/webapp/traam/
 
 ## 2) Dispositif de jeu et d’évaluation 
 
-**Terrain** : ½ terrain de handball (en largeur si besoin), matérialiser **zone arrière** (> 9 m) et **zone avant** (de 9 m à 6 m).
+**Terrain** :  terrain de handball en 4x4 , matérialiser **zone arrière 1/2 terrain adv**  et **zone avant 1/2 terrain ** .
 **Rôles** : 3 attaquants // 1 déf en **zone arrière** // 1 déf en **zone avant** // 1 GB // 1 **observateur**. Rotation toutes les 2-3 actions.
 **Règles spécifiques**
 
