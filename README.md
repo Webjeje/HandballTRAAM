@@ -278,7 +278,7 @@ Les changements sont **pérennes** (localStorage) et s’appliquent dès le proc
 
 ---
 ---
-### Cahier des charges Application.  
+# Cahier des charges Application.  
 ---
 ---
 
