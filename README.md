@@ -51,8 +51,58 @@ https://www.webjeje.com/online/webapp/traam/
 * Rappels 3 pas/3 s ; interdits de charge ; tirs maîtrisés ; rotations fluides ; gestion des rebonds avec GB.
 
 ---
+Voici l’idée en clair : **classer une action** avec **3 facteurs simultanés** (temps, passes, zone/issue) est **naturellement complexe** : en 2D déjà (p. ex. temps × passes) la frontière entre « bon » et « pas bon » n’est pas une ligne droite unique ; en **3D** (temps × passes × zone) c’est un **volume** aux bords irréguliers.
+Pour éviter que ça devienne illisible pour les élèves, on **impose une hiérarchie de décision** (règle de priorité) qui tranche proprement.
 
-## 3) Référentiel à 4 niveaux (seuils indicatifs à **calibrer séance 1**)
+# 3) Pourquoi c’est compliqué sans le numérique....
+
+* **Multicritère** : une action peut être rapide **mais** mal finie, ou bien préparée **mais** trop longue. Sans règle claire, on ne sait pas quoi privilégier.
+* **Frontières non linéaires** : “2–4 passes utiles” n’est pas « mieux » si le tir est mauvais ; “< 8 s” n’est pas « mieux » si la balle est perdue.
+* **3D = volumique** : temps (axe X), passes (axe Y), zone/issue (axe Z). Visualiser/pondérer ces trois dimensions sans priorité crée des cas ambigus.
+
+# La règle de priorité (simple et pédagogique)
+
+On **priorise le sens du jeu** : d’abord la **fin** (qualité du tir et **zone avant**), puis le **tempo**, puis la **quantité de passes**.
+
+Pseudo-code (celui de l’app) :
+
+```js
+// Priorité : FIN (zone/issue) → TEMPO → PASSES
+if (isSuccess && isAvant && sec <= T_vite && passes ∈ [P_min, P_max]) return 4; // vite efficace
+if (isSuccess && isAvant && sec > T_vite && sec <= T_lent)           return 3; // lent efficace
+if (issue==='passage_arriere' || sec > T_lent || passes >= P_sterile) return 2; // lent pas efficace
+if (passes <= 1 || issue==='perte_avant')                              return 1; // panique
+return 2; // filet de sécurité
+```
+
+**Traduction** :
+
+1. **La fin domine** : un **tir cadré/but en zone avant** qualifie l’action (N3 ou N4 selon le temps).
+2. **Le tempo tranche** : si c’est réussi **et** en zone avant, **≤ T\_vite → N4**, **(T\_vite, T\_lent] → N3**.
+3. **Les passes arbitrent** la qualité de la construction : trop peu (≤1) → **panique (N1)** ; trop (≥ P\_stérile) → **stérile (N2)**.
+4. **Filets** : passage bloqué en **zone arrière** ou **au-delà de T\_lent** → **N2**.
+
+# Ce que gagne l’élève (et toi)
+
+* **Lisibilité** : on sait **tout de suite** quoi améliorer :
+
+  * fin mauvaise → travailler **angle/élan/zone** ;
+  * fin bonne mais lente → **lecture + enchaînement** ;
+  * trop de passes → **intention d’attaque** ;
+  * trop peu de passes → **conserver/regarder**.
+* **Équité** : une action “rapide mais bâclée” n’est **pas** valorisée ; une action “préparée et cadrée” est **valorisée** même si elle n’est pas ultra-rapide.
+
+# Exemples flash (avec réglages par défaut)
+
+* **N4** : 7,2 s · 3 passes · **tir cadré** **en zone avant** → vite **et** bien.
+* **N3** : 12,5 s · 4 passes · **but** **en zone avant** → bien, un peu long.
+* **N2** : 19 s · 5 passes · **zone arrière** ou **tir manqué** → lent/stérile.
+* **N1** : 5 s · **1 passe** · perte **en zone avant** → précipitation.
+
+**Synthèse** : on remplace un **normogramme 3D** (complexe) par une **suite de tests ordonnés** qui reflète la **logique du jeu** : *je finis bien → je regarde le temps → je contrôle les passes*.
+
+
+## 4) Référentiel à 4 niveaux (seuils indicatifs à **calibrer séance 1**)
 
 > Ajuster légèrement les seuils après la première séance selon votre salle, la taille du terrain et le niveau.
 
@@ -228,10 +278,11 @@ Les changements sont **pérennes** (localStorage) et s’appliquent dès le proc
 
 ---
 ---
+### Cahier des charges Application.  
 ---
 ---
 
-### Cahier des charges Webapp. 
+
 
 1. Installer le **3v1+1+GB**, les **rôles** et la **prise de données**.
 2. **Calibrer** les **seuils** (séance 1), puis travailler **Conserver → Progresser → Marquer**.
