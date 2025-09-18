@@ -67,134 +67,165 @@
 * **5e** : resserrer « vite efficace » à **≤ 7 s** ; exiger **déplacement/élan** avant tir.
 A tester...
 ---
-
-
-
-
-## 4) Critères de réussite lisibles par l’élève
-
-1. **Je termine en zone avant** par **tir cadré** ou **but**.
-2. **Je fais 2 à 4 passes utiles** (ni 0-1 panique, ni > 6 stériles).
-3. **Je respecte le tempo** annoncé (fenêtre choisie) et je **justifie** mon choix.
-4. **Je réduis les pertes** d’un passage à l’autre.
+ valeurs par défaut :
+**T\_vite = 8 s · T\_lent = 18 s · P\_min = 2 · P\_max = 4 · P\_stérile = 6**
 
 ---
 
-## 5) Différenciation & variables didactiques
+# Où régler ?
 
-* **Pour 6e** : terrain **un peu plus court**, fenêtre « lent efficace » **élargie**, tir cadré à 9–10 m admis comme « avant » si l’**angle** est bon.
-* **Pour 5e** : terrain standard, exigence **d’angle + élan**, fenêtre « vite efficace » **resserrée**.
-* **Variables** : largeur des zones, nombre de passes **min** avant tir (0 / 2 / 3), obligation d’**un renversement**, tir autorisé **uniquement après franchissement** des 9 m, **bonus** si le ballon a changé de côté avant le tir.
+Footer → **Réglages** (PIN **2025**)
+Les 5 champs modifiables :
 
----
+* **Temps vite (T\_vite)**
+* **Temps lent (T\_lent)**
+* **Passes min (P\_min)**
+* **Passes max (P\_max)**
+* **Seuil stérile (P\_stérile)**
 
-## 6) Grille d’observation (format appli ou papier)
-
-| Équipe | Passage | Temps (s) | Passes | **Zone fin**    | **Issue**                    | **Niveau (1–4)** | Note rapide |
-| ------ | ------: | --------: | -----: | --------------- | ---------------------------- | ---------------: | ----------- |
-| A      |       1 |           |        | Avant / Arrière | Perte / Manqué / Cadré / But |                  |             |
-| A      |       2 |           |        |                 |                              |                  |             |
-| …      |       … |           |        |                 |                              |                  |             |
-
-**Aide au codage observateur** :
-
-* **Temps** au dixième si possible.
-* **Passes** décomptées en direct.
-* **Zone/Issue** cochées instantanément.
-* **Niveau** déterminé automatiquement par l’appli selon les **seuils**.
+Les changements sont **pérennes** (localStorage) et s’appliquent dès le prochain passage.
 
 ---
 
-## 7) Exploitation des données sur **plusieurs passages**
+# Ce que décident les règles (rappel synthèse)
 
-* **Individuel** : comparer ses 3 à 5 passages (évolution **temps**, **passes**, **issue/zone**).
-* **Équipe** : répartir les passages par **fenêtre temporelle** (≤ 8 s / 9–18 s / > 18 s) et **issue**.
-* **Classe** : construire un **nuage « temps vs passes »** pour visualiser les **quartiers de performance** (panique ; lent stérile ; lent efficace ; vite efficace).
-* **Décision** : fixer un **objectif** réaliste séance suivante (ex. « viser 2–4 passes et tir cadré en zone avant en moins de 10 s »).
+* **N4 — vite efficace** : `t ≤ T_vite` **et** `passes ∈ [P_min, P_max]` **et** `issue ∈ {tir_cadré, but}` **et** `zone = avant`.
+* **N3 — lent efficace** : `T_vite < t ≤ T_lent` **et** `passes ∈ [P_min, P_max]` **et** `issue ∈ {tir_cadré, but}` **et** `zone = avant`.
+* **N2 — lent pas efficace** : `t > T_lent` **ou** `passes ≥ P_stérile` **ou** `issue ∈ {tir_manqué, zone_arriere}`.
+* **N1 — panique** : `passes ≤ 1` **ou** `issue = perte_avant` **ou** `zone_avant` (sans tir).
 
----
-
-## 8) Conduite du **débat d’idées** (esprit critique)
-
-* **Question-pivot** : « Dans quelles conditions **aller vite** devient-il **vraiment efficace** ? »
-* **Appuis** : affiches/dashboards de l’appli, **exemples** de séquences « panique » vs « vite efficace » décrites par les élèves.
-* **Méthode** :
-
-  1. **Observation** : que montrent les données ?
-  2. **Interprétation** : quelles décisions, quels déplacements, quelles passes ont mené au tir **en bonne disposition** ?
-  3. **Règles** : formuler **3 règles** transférables (voir §6).
+> Priorité de calcul : **fin (issue/zone)** → **tempo** → **passes**.
 
 ---
 
-## 10) Plan d’évaluation
+# Incidence des 5 réglages (effets attendus + quand bouger le curseur)
 
-* **Positionnement N1–N4** issu de la **médiane** des passages et des **tendances** (réduction pertes ; + tirs cadrés en zone avant ; respect de la fenêtre annoncée).
-* **Valorisation du progrès** : passer de N1 → N3 est **un vrai gain** ; stabiliser N4 sur 2 passages est un **objectif élevé**.
-* **Trace écrite** : capture du tableau perso (appli) + 2 règles d’action + 1 objectif.
+## 1) **Temps vite (T\_vite)**
 
----
+* **Baisser** (ex. 7 s) : N4 devient **plus exigeant** → pousse à **lire vite** l’avantage (2x1) et à enchaîner.
+* **Monter** (ex. 9 s) : N4 devient **plus accessible** (utile en 6e) → réduit la “pression” sans dénaturer l’objectif.
 
-## 11) Ce que devra faire **l’application** (cahier des charges bref)
+**À utiliser quand** :
 
-**Rôles et flux**
+* Terrain long/défense serrée → **monte** T\_vite.
+* Terrain court/défense permissive → **baisse** T\_vite.
 
-* **Mode Observateur** : gros boutons **Start/Stop**, **+1 passe**, **Zone** (Avant/Arrière), **Issue** (Perte/Manqué/Cadré/But).
-* **Calculs auto** : attribution du **Niveau 1–4** selon les **seuils** ; **médiane** temps/passes par élève ; répartition des **issues**.
-* **Feedback immédiat** : **chrono** visible, **pastilles** de couleur, **icône de zone**.
-* **Historique multi-passages** par élève et par séance ; **export CSV**.
+## 2) **Temps lent (T\_lent)**
 
-**Indicateurs dérivés utiles**
+* **Baisser** (ex. 16 s) : sanctionne plus tôt la **stérilité** (N2), évite les rondes de passes.
+* **Monter** (ex. 20 s) : **laisse le temps** de construire (N3) quand la technique est fragile.
 
-* **% d’actions finies en zone avant** ; **% tirs cadrés** ; **ratio pertes** ; **temps moyen par action réussie** ; **passes utiles** (2–4) vs stériles (>6).
-* **Nuage « temps vs passes »** avec code couleur par **issue**.
+**À utiliser quand** :
 
-**Données minimales (par passage)**
+* Classe qui “tricote” → **baisse** T\_lent.
+* Classe en difficulté technique → **monte** T\_lent.
 
-```json
-{
-  "eleve_id": "A12",
-  "seance": 4,
-  "passage": 3,
-  "temps_s": 7.8,
-  "passes": 3,
-  "zone_fin": "avant",
-  "issue": "but",
-  "niveau_calcule": 4,
-  "horodatage": "2025-09-17T10:15:00"
-}
-```
+## 3) **Passes min (P\_min)**
 
-> Ces champs suffisent pour générer les tableaux de bord de la séquence. Nous pourrons ajouter plus tard des **commentaires** ou des **tags techniques** (ex. « renversement », « tir à rebond »).
+* **Baisser** (ex. 1) : autorise des sorties **très directes**.
+* **Monter** (ex. 3) : **force la conservation** et la **prise d’info** avant d’accélérer.
 
----
+**À utiliser quand** :
 
-## 12) Boîte à outils de l’enseignant
+* Beaucoup de pertes en 1re passe → **monte** P\_min (2→3).
+* Très bonne lecture du jeu → **baisse** P\_min (2→1) pour valoriser la spontanéité.
 
-* **Consignes-clés orales**
+## 4) **Passes max (P\_max)**
 
-  * « **Regarde avant** de jouer » ; « 2 **lignes de passe** visibles » ; « **Fixe** puis **donne** » ; « **Avance** dans le **sens du jeu** » ; « **Tire en élan** et **avec angle** ».
-* **Repères pour corriger**
+* **Baisser** (ex. 3) : cible un jeu **plus tranchant** (évite les passes “pour passer”).
+* **Monter** (ex. 5) : valorise une **préparation plus longue** (renversement, décalage).
 
-  * Panique : « arrête de jeter, **protège** et **rejoue** », « **2–4 passes utiles** puis on accélère ».
-  * Lent stérile : « change de côté », « appui-soutien », « **franchis 9 m** avant tir ».
-  * Vite efficace : « lis le **3x1** », « **enchaîne** course/tir sans casser l’élan ».
+**À utiliser quand** :
 
----
+* Tirs pris sans angle → **monte** P\_max (4→5) pour encourager la préparation.
+* Trop de latéralités inutiles → **baisse** P\_max (4→3).
 
-## 13) Organisation matérielle & gestion de classe ( en 4x4)
+## 5) **Seuil stérile (P\_stérile)**
 
-* **3 ateliers** simultanés en largeur ; **plots** pour matérialiser 9 m/6 m ; **1 ballon** par atelier + ballons de réserve ; **chasubles** code couleur rôles.
-* **Rotation** à la voix ou au bip ; **tablette**/smartphone ou fiche pour l’observateur ; **table** affichage des résultats (vidéopro ou tableau).
-* **Sécurité** : rappel des règles de contact ; zones de repli du GB ; gestion des rebonds.
+* **Baisser** (ex. 5) : classe plus vite le jeu en **N2 (stérile)** si ça tourne sans avancer.
+* **Monter** (ex. 7–8) : **tolère** plus de passes avant sanction (utile en 6e).
+
+**À utiliser quand** :
+
+* On n’attaque pas la profondeur → **baisse** P\_stérile.
+* Manip techniques en construction → **monte** P\_stérile.
 
 ---
 
-## 14) En quoi la séquence rend l’apprentissage **explicite**
+# Exemples concrets (avec les **valeurs par défaut**)
+
+## N4 — Vite efficace
+
+* **7,2 s – 3 passes – but – zone avant** → **N4** (vite + passes utiles + fin excellente)
+* **8,0 s – 2 passes – tir cadré – zone avant** → **N4** (pile sur T\_vite)
+* **6,5 s – 4 passes – tir cadré – zone avant** → **N4** (max passes utiles atteint)
+
+**Si tu montes T\_vite à 9 s** : l’action **8,6 s – 3 passes – tir cadré** passerait de **N3 → N4** (plus de N4 attendus).
+**Si tu baisses P\_max à 3** : l’action **6,5 s – 4 passes – tir cadré** deviendrait **N2** (trop de passes au regard de la cible).
+
+---
+
+## N3 — Lent efficace
+
+* **12,4 s – 3 passes – but – zone avant** → **N3** (préparation > T\_vite mais tir de qualité)
+* **17,9 s – 2 passes – tir cadré – zone avant** → **N3** (à la limite de T\_lent)
+* **10,2 s – 4 passes – tir cadré – zone avant** → **N3** (tempo modéré, passes utiles)
+
+**Si tu baisses T\_lent à 16 s** : la seconde action (**17,9 s…**) deviendrait **N2** (trop long).
+**Si tu montes P\_max à 5** : une action **13 s – 5 passes – tir cadré** resterait **N3** (préparation acceptée).
+
+---
+
+## N2 — Lent pas efficace
+
+* **19,5 s – 4 passes – tir cadré – zone avant** → **N2** (trop long > T\_lent)
+* **13,0 s – 7 passes – tir cadré – zone avant** → **N2** (≥ **P\_stérile**)
+* **10,0 s – 3 passes – tir manqué – zone avant** → **N2** (fin de mauvaise qualité)
+* **14,0 s – 3 passes – zone arrière** → **N2** (on n’a pas vraiment progressé)
+
+**Si tu montes T\_lent à 20 s** : la 1re action (**19,5 s…**) passerait **N3** (préparation longue mais valide).
+**Si tu baisses P\_stérile à 5** : la 2e action (**7 passes…**) resterait **N2**, et des **6 passes** basculeraient aussi **N2** (durcissement).
+
+---
+
+## N1 — Panique
+
+* **5,0 s – 1 passe – tir cadré – zone avant** → **N1** (passes ≤ 1)
+* **4,0 s – 0 passe – perte – zone avant** → **N1** (perte)
+* **9,0 s – 1 passe – zone avant (sans tir)** → **N1** (on y est, mais on **gâche**)
+
+**Si tu **baisses P\_min** à 1** : la 1re action (**1 passe – tir cadré**) ne serait **plus** N1 par “manque de passes”, mais resterait **N2** si tu veux garder l’exigence de **tir cadré** *et* **tempo**.
+
+---
+
+# Petits presets utiles (à charger en début de cycle)
+
+* **6e (sécuriser la construction)** : `T_vite = 9 s · T_lent = 20 s · P_min = 2 · P_max = 5 · P_stérile = 7`
+  → Moins de N1, N3 plus accessible, N4 possible mais méritant.
+* **5e (tranchant & lecture rapide)** : `T_vite = 7 s · T_lent = 18 s · P_min = 2 · P_max = 4 · P_stérile = 6`
+  → N4 exigeant, N2 sanctionne les séquences stériles.
+
+---
+
+# Message à faire passer aux élèves
+
+* **Rouge (N1)** : je me précipite (peu/pas de passes, perte, pas de tir).
+* **Orange (N2)** : je garde sans attaquer / tir peu dangereux.
+* **Vert clair (N3)** : je **prépare** et je **cadre** en zone avant.
+* **Vert foncé (N4)** : je **lis vite**, passes **utiles**, tir **cadré** ou **but** en zone avant.
+
+
+
+## En quoi la séquence rend l’apprentissage **explicite**
 
 * Les **trois dimensions** (conservation, progression, marque en bonne disposition) sont **mesurées** par **temps**, **passes**, **zone/issue**.
 * Les élèves **produisent**, **lisent** et **discutent** leurs propres **données**, ce qui **déconstruit** la croyance « plus vite = mieux » et installe l’idée de **vitesse maîtrisée**.
 * La **contrainte temporelle** n’est pas punitive ; c’est un **repère** pour **qualifier le tempo** (vite **ou** lent) **et** l’**efficacité**.
 
+
+
+---
+---
 ---
 ---
 
