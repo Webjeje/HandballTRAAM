@@ -78,7 +78,7 @@ return 2; // filet de sécurité
 **Traduction** :
 
 1. **La fin domine** : un **tir cadré/but en zone avant** qualifie l’action (N3 ou N4 selon le temps).
-2. **Le tempo tranche** : si c’est réussi **et** en zone avant, **≤ T\_vite → N4**, **(T\_vite, T\_lent] → N3**.
+2. **Le tempo tranche** : si c’est réussi **et** vite, **≤ T\_vite → N4**, **(T\_vite, T\_lent] → N3**.
 3. **Les passes arbitrent** la qualité de la construction : trop peu (≤1) → **panique (N1)** ; trop (≥ P\_stérile) → **stérile (N2)**.
 4. **Garde fous** : passage bloqué en **zone arrière** ou **au-delà de T\_lent** → **N2**.
 
