@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Handball – Vitesse vs Précipitation (V1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gauge.js/1.2.1/gauge.min.js"></script>
+  <style>
+    :root{
+      --bg:#0b1220;           /* fond global */
+      --card:#0e1726;         /* cartes */
+      --text:#e5e7eb;         /* texte clair */
+      --muted:#9ca3af;        /* secondaire */
+      --ring:rgba(59,130,246,.35);
+      /* Couleurs pédagogiques N1..N4 */
+      --n1:#ef4444;           /* rouge */
+      --n2:#f59e0b;           /* orange */
+      --n3:#86efac;           /* vert clair */
+      --n4:#22c55e;           /* vert foncé */
+      /* Couleurs issues (6 boutons) */
+      --issue-noir:#111827;          /* perte Z avant (NOIR demandé → on affiche rouge selon consigne couleur) */
+      --issue-rouge:#ef4444;         /* perte Z avant (rouge) */
+      --issue-orange:#f59e0b;        /* zone avant & arrière */
+      --issue-vert-clair:#86efac;    /* tir manqué / tir cadré */
+      --issue-vert-fonce:#22c55e;    /* but marqué */
+      --issue-bleu:#3b82f6;          /* si besoin futur */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; background:linear-gradient(180deg,#0b1220,#0f172a 40%,#0b1220); color:var(--text); font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    .app{min-height:100vh; display:flex; flex-direction:column}
+    header{position:sticky; top:0; z-index:10; backdrop-filter:saturate(180%) blur(6px); background:#0b1220cc; border-bottom:2px solid #1f2a44}
+    header .bar{display:flex; align-items:center; justify-content:space-between; padding:20px 44px}
+    .brand{font-weight:800; letter-spacing:.3px}
+    .btn{appearance:none; border:0; border-radius:3px; padding:14px 18px; color:#0b1220; font-weight:600; cursor:pointer; transition:.15s transform,.15s opacity}
+    .btn:active{transform:scale(.98)}
+    .btn-ghost{background:transparent; color:var(--text); border:1px solid #1f2a44}
+    .btn-danger{background:var(--n1); color:#0b1220}
+
+    main{flex:1; padding:10px; max-width:820px; width:100%; margin:0 auto}
+    .card{background:linear-gradient(180deg,#0e1726,#0a1322); border:1px solid #1f2a44; border-radius:8px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+    /* Footer nav */
+    footer{position:sticky; bottom:0; z-index:10; background:#0b1220cc; border-top:1px solid #1f2a44; backdrop-filter:saturate(180%) blur(6px)}
+    .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px}
+    .tab{padding:10px 8px; text-align:center; font-weight:500; border-radius:4px; color:var(--text); border:0px solid #1f2a44; background:#0e1726}
+    .tab.active{outline:1px solid var(--ring); background:#13203a}
+
+    /* Passage (élèves) */
+    .hud{display:grid; gap:10px}
+    .chrono{font-size:56px; font-weight:800; text-align:center; letter-spacing:1px; padding:8px 12px; border-radius:8px; border:1px solid #1f2a44; background:#0b1220}
+    .chrono.n1{color:var(--n1)}
+    .chrono.n2{color:var(--n2)}
+    .chrono.n3{color:var(--n3)}
+    .chrono.n4{color:var(--n4)}
+
+    .big{font-size:22px}
+    .cta{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
+    .btn-start{background:var(--n4); color:#0b1220; padding:18px; font-size:22px}
+    .btn-passes{background:#1f2937; color:#fff; padding:22px; font-size:30px; display:flex; gap:14px; align-items:center; justify-content:center}
+    .btn-passes.n1{background:var(--n1); color:#0b1220}
+    .btn-passes.n2{background:var(--n2); color:#0b1220}
+    .btn-passes.n3{background:var(--n3); color:#0b1220}
+    .btn-passes.n4{background:var(--n4); color:#0b1220}
+
+    .issues{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:6px}
+    .issue{
+      padding:16px; font-size:18px; font-weight:400; border-radius:4px; border:1px solid #1f2a44; color:#0b1220;
+      /* Pour une image 16:9, décommentez la ligne ci-dessous et mettez le chemin */
+      /* background-image: url('path/to/image.jpg'); */
+      background-size: cover;
+      background-position: center;
+      color: #fff; /* Le texte doit être clair sur une image */
+    }
+    .issue[disabled]{opacity:.35; filter:grayscale(.4)}
+    .issue.perte-avant{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-rouge)}
+    .issue.zone-avant{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-orange)}
+    .issue.zone-arriere{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-orange)}
+    .issue.tir-manque{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-vert-clair)}
+    .issue.tir-cadre{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-vert-clair)}
+    .issue.but{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), var(--issue-vert-fonce)}
+
+    /* Mini jauges héros */
+    .gauges{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px}
+    .gauge{background:#0b1220; border:1px solid #1f2a44; border-radius:8px; padding:8px}
+    .gauge label{font-size:12px; color:var(--muted)}
+    .bar{height:10px; background:#111827; border-radius:8px; overflow:hidden; margin-top:6px}
+    .bar>span{display:block; height:100%; width:0%; background:var(--n3); transition:width .2s linear, background .2s linear}
+
+    /* Toast résumé */
+    .toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:#111827cc; backdrop-filter:blur(6px); border:1px solid #1f2a44; border-radius:8px; padding:12px 14px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,.4); display:none}
+
+    /* Stats */
+    .stats-grid{display:grid; gap:10px}
+    @media(min-width:720px){.stats-grid{grid-template-columns:1fr 1fr}}
+    .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:8px 0}
+    .kpi{background:#0b1220; border:1px solid #1f2a44; padding:10px; border-radius:4px; text-align:center}
+    .kpi b{font-size:20px; display:block}
+
+    /* Balance Roberval */
+    .balance{height:140px; position:relative; margin-top:8px}
+    .beam{position:absolute; left:50%; top:40px; width:240px; height:10px; background:#1f2a44; transform-origin:50% 50%; border-radius:6px; transform:translateX(-50%) rotate(0deg)}
+    .pan{position:absolute; width:90px; height:16px; background:#0b1220; border:1px solid #1f2a44; border-radius:8px; top:56px}
+    .pan.left{left:calc(50% - 140px)}
+    .pan.right{left:calc(50% + 50px)}
+    .pivot{position:absolute; left:50%; top:24px; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:18px solid #1f2a44}
+    .balance .label{position:absolute; top:78px; width:120px; text-align:center; color:var(--muted); font-size:12px}
+    .label.left{left:calc(50% - 160px)}
+    .label.right{left:calc(50% + 40px)}
+
+    /* Paramètres (PIN) */
+    .lock{display:grid; gap:8px}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+    .field{display:grid; gap:6px}
+    input[type="number"], input[type="text"], input[type="password"]{width:100%; padding:12px 10px; border-radius:8px; background:#0b1220; border:1px solid #1f2a44; color:var(--text)}
+    .save{background:#3b82f6; color:#0b1220}
+
+    /* Gestion élèves */
+    .students{display:grid; gap:8px}
+
+    /* Modals */
+    dialog{border:1px solid #1f2a44; background:#0e1726; color:var(--text); border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    dialog::backdrop{background:rgba(0,0,0,.45); backdrop-filter:blur(3px)}
+    .modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:8px}
+    canvas{max-width:100%}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="bar">
+      <div class="brand">Handball · Vitesse vs Précipitation</div>
+      <button class="btn btn-ghost" id="btnResetAll" title="Réinitialiser">
+         Reset 
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Vue Passage (élèves) -->
+    <section id="view-passage" class="card" data-view>
+      <div class="hud">
+        <div id="chrono" class="chrono">00:00.0</div>
+
+        <div class="gauges">
+          <div class="gauge" id="gTime">
+            <label>Temps</label>
+            <div class="bar"><span></span></div>
+          </div>
+          <div class="gauge" id="gPasses">
+            <label>Passes</label>
+            <div class="bar"><span></span></div>
+          </div>
+          <div class="gauge" id="gIssue">
+            <label>Issue</label>
+            <div class="bar"><span></span></div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <button id="btnStart" class="btn btn-start big"> Start</button>
+          <button id="btnPass" class="btn btn-passes" style="display:none">+ Passes <span id="passCount">0</span></button>
+        </div>
+
+        <div class="issues">
+          <button class="issue perte-avant"   id="i-perte"    disabled>Perte zone avant</button>
+          <button class="issue zone-avant"    id="i-zavant"   disabled>Passage zone avant</button>
+          <button class="issue zone-arriere"  id="i-zarriere" disabled>Passage zone arrière</button>
+          <button class="issue tir-manque"    id="i-manque"   disabled>Tir manqué</button>
+          <button class="issue tir-cadre"     id="i-cadre"    disabled>Tir cadré</button>
+          <button class="issue but"           id="i-but"      disabled>But marqué</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vue Stats -->
+    <section id="view-stats" class="card" data-view style="display:none">
+      <div style="text-align:center; margin-bottom:10px; background:var(--bg); padding:10px; border-radius:8px; border:1px solid #1f2a44;">
+        <label style="font-weight:bold; color:var(--muted)">Niveau Moyen Global</label>
+        <canvas id="gauge-avg-level" height="100" style="width:220px; margin:10px auto 0;"></canvas>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><span>Temps moyen</span><b id="kpiTime">—</b></div>
+        <div class="kpi"><span>Passes moyennes</span><b id="kpiPass">—</b></div>
+        <div class="kpi"><span>% zone avant / but</span><b id="kpiAvant">—</b></div>
+      </div>
+      <div class="stats-grid">
+        <div class="card">
+          <canvas id="chartTimes" height="180"></canvas>
+        </div>
+        <div class="card">
+          <canvas id="chartPasses" height="180"></canvas>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <canvas id="chartIssues" height="200"></canvas>
+      </div>
+      <div class="card" style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btnExportCSV"> Export CSV (Excel/Numbers)</button>
+        <button class="btn btn-ghost" id="btnQR"> QR Code des stats</button>
+      </div>
+    </section>
+
+    <!-- Vue Réglages (PIN 2025) -->
+    <section id="view-settings" class="card" data-view style="display:none">
+      <div id="lockPane" class="lock">
+        <p style="color:var(--muted)">Espace réservé. Entrer le code PIN pour modifier les seuils.</p>
+        <div class="row">
+          <div class="field">
+            <label for="pin">PIN</label>
+            <input id="pin" type="password" inputmode="numeric" placeholder="****" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="btnUnlock" class="btn save"> Déverrouiller</button>
+          </div>
+        </div>
+      </div>
+      <div id="settingsPane" style="display:none">
+        <div class="row">
+          <div class="field">
+            <label>T_vite (s)</label>
+            <input id="tVite" type="number" step="0.1" min="1" />
+          </div>
+          <div class="field">
+            <label>T_lent (s)</label>
+            <input id="tLent" type="number" step="0.1" min="1" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Passes min (utile)</label>
+            <input id="pMin" type="number" step="1" min="0" />
+          </div>
+          <div class="field">
+            <label>Passes max (utile)</label>
+            <input id="pMax" type="number" step="1" min="0" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Seuil stérile (≥)</label>
+            <input id="pSterile" type="number" step="1" min="0" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="btnSaveCfg" class="btn save"> Enregistrer la config</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vue Gestion élèves -->
+    <section id="view-students" class="card" data-view style="display:none">
+      <div class="students">
+        <div class="row">
+          <div class="field"><label>Attaquant 1</label><input id="s1" type="text" placeholder="Nom prénom" /></div>
+          <div class="field"><label>Attaquant 2</label><input id="s2" type="text" placeholder="Nom prénom" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Attaquant 3</label><input id="s3" type="text" placeholder="Nom prénom" /></div>
+          <div class="field"><label>&nbsp;</label><button id="btnSaveNames" class="btn save"> Enregistrer noms</button></div>
+        </div>
+        <div class="card" style="margin-top:8px">
+          <p style="color:var(--muted); margin-top:0">Exporter l'archivage :
+            <br>• CSV pour Excel / Numbers
+            <br>• QR Code contenant un condensé CSV (utile pour scanner rapidement)
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn btn-ghost" id="btnExportCSV2"> Export CSV</button>
+            <button class="btn btn-ghost" id="btnQR2"> QR Code</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="tabs">
+      <button class="tab active" data-tab="passage"> Passage</button>
+      <button class="tab" data-tab="stats"> Stats</button>
+      <button class="tab" data-tab="settings">Réglages</button>
+      <button class="tab" data-tab="students"> Élèves</button>
+    </div>
+  </footer>
+</div>
+
+<!-- Modals -->
+<dialog id="modalQR">
+  <h3>QR Code – Stats (CSV)</h3>
+  <canvas id="qrCanvas" width="240" height="240"></canvas>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="closeQR">Fermer</button>
+  </div>
+</dialog>
+
+<dialog id="modalReset">
+  <h3>Reset général</h3>
+  <p>Que souhaitez-vous réinitialiser ?</p>
+  <div class="modal-actions">
+    <button class="btn btn-danger" id="resetAll">Tout (données + réglages + noms)</button>
+    <button class="btn btn-ghost" id="resetData">Seulement les données</button>
+    <button class="btn btn-ghost" id="resetCancel">Annuler</button>
+  </div>
+</dialog>
+
+<dialog id="modalResult">
+  <h3>Bilan du passage</h3>
+  <p id="resultText" style="text-align:center; font-size:18px;"></p>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="closeResult">Fermer</button>
+  </div>
+</dialog>
+
+<script>
+  // --- Utils couleur niveau ---
+  const lvlColor = lvl => ({1:'var(--n1)',2:'var(--n2)',3:'var(--n3)',4:'var(--n4)'}[lvl]||'var(--text)');
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+  // --- Storage ---
+  const LS_KEY_CFG = 'hb_cfg_v1';
+  const LS_KEY_DATA = 'hb_passages_v1';
+  const LS_KEY_NAMES = 'hb_names_v1';
+
+  const defaults = {
+    seuils:{T_vite:8.0, T_lent:18.0, P_min:2, P_max:4, P_sterile:6}
+  };
+
+  let cfg = loadCfg();
+  let passages = loadPassages();
+  let names = loadNames();
+
+  function loadCfg(){
+    const raw = localStorage.getItem(LS_KEY_CFG);
+    if(!raw) return structuredClone(defaults);
+    try{ const o = JSON.parse(raw); return {seuils:{...defaults.seuils, ...(o.seuils||{})}}; }catch(e){ return structuredClone(defaults); }
+  }
+  function saveCfg(){ localStorage.setItem(LS_KEY_CFG, JSON.stringify(cfg)); }
+  function loadPassages(){ try{ return JSON.parse(localStorage.getItem(LS_KEY_DATA)||'[]'); }catch{ return []; } }
+  function savePassages(){ localStorage.setItem(LS_KEY_DATA, JSON.stringify(passages)); }
+  function loadNames(){ try{ return JSON.parse(localStorage.getItem(LS_KEY_NAMES)||'["","",""]'); }catch{ return ["","",""]; } }
+  function saveNames(){ localStorage.setItem(LS_KEY_NAMES, JSON.stringify(names)); }
+
+  // --- Éléments ---
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => document.querySelectorAll(sel);
+
+  const chronoEl = $('#chrono');
+  const passBtn = $('#btnPass');
+  const passCountEl = $('#passCount');
+  const startBtn = $('#btnStart');
+  const issueBtns = {
+    perte: $('#i-perte'),
+    zavant: $('#i-zavant'),
+    zarriere: $('#i-zarriere'),
+    manque: $('#i-manque'),
+    cadre: $('#i-cadre'),
+    but: $('#i-but')
+  };
+
+  // Gauges
+  const gTime = $('#gTime .bar span');
+  const gPass = $('#gPasses .bar span');
+  const gIssue = $('#gIssue .bar span');
+
+  // Tabs
+  $$('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+  function switchTab(tab){
+    $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+    $('[data-view]#view-passage').style.display = tab==='passage'? 'block':'none';
+    $('[data-view]#view-stats').style.display = tab==='stats'? 'block':'none';
+    $('[data-view]#view-settings').style.display = tab==='settings'? 'block':'none';
+    $('[data-view]#view-students').style.display = tab==='students'? 'block':'none';
+    if(tab==='stats') renderCharts();
+    if(tab==='settings') loadSettingsUI();
+    if(tab==='students') loadStudentsUI();
+  }
+
+  // --- Timer ---
+  let state = 'idle';
+  let startTs = 0;
+  let raf = 0;
+  let passesCount = 0;
+
+  function fmtTime(ms){
+    const s = ms/1000; const m = Math.floor(s/60); const sec = (s%60).toFixed(1).padStart(4,'0');
+    return `${String(m).padStart(2,'0')}:${sec}`;
+  }
+
+  function tick(){
+    const ms = performance.now() - startTs;
+    chronoEl.textContent = fmtTime(ms);
+    // Time gauge & color
+    const {T_vite,T_lent} = cfg.seuils;
+    const sec = ms/1000;
+    let tPct = 0, tClass='';
+    if(sec<=T_vite){ tPct = clamp(sec/T_vite*100,0,100); tClass='n4'; }
+    else if(sec<=T_lent){ tPct = clamp(100*(sec-T_vite)/(T_lent-T_vite),0,100); tClass='n3'; }
+    else { tPct = 100; tClass='n2'; }
+    chronoEl.className = `chrono ${tClass}`;
+    gTime.style.width = `${tPct}%`;
+    gTime.style.background = getComputedStyle(document.documentElement).getPropertyValue(tClass==='n4'?'--n4':tClass==='n3'?'--n3':'--n2');
+
+    // Passes gauge
+    const {P_min,P_max,P_sterile} = cfg.seuils;
+    let pPct=0, lvlPred=1, pCol='--n1';
+    if(passesCount<=1){ pPct=clamp(passesCount/1*33,0,33); lvlPred=1; pCol='--n1'; }
+    if(passesCount>=P_min && passesCount<=P_max){ pPct=66; lvlPred=Math.max(lvlPred,3); pCol='--n3'; }
+    if(passesCount>=P_sterile){ pPct=100; lvlPred=2; pCol='--n2'; }
+    gPass.style.width = `${pPct}%`; gPass.style.background = getComputedStyle(document.documentElement).getPropertyValue(pCol);
+
+    // Predicted level for Pass button (combine time+passes)
+    const pred = predictLevel(sec, passesCount);
+    passBtn.className = `btn btn-passes ${'n'+pred}`;
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  function predictLevel(sec, passes){
+    const {T_vite,T_lent,P_min,P_max,P_sterile} = cfg.seuils;
+    if(sec<=T_vite && passes>=P_min && passes<=P_max) return 4; // vite efficace
+    if(sec>T_lent || passes>=P_sterile) return 2;               // lent pas efficace
+    if(sec>T_vite && sec<=T_lent && passes>=P_min-0 && passes<=P_max+0) return 3; // lent efficace
+    if(passes<=1) return 1;                                     // panique
+    return 2; // défaut prudent
+  }
+
+  // --- Interactions Passage ---
+  startBtn.addEventListener('click', ()=>{
+    if(state!=='idle') return;
+    state='running';
+    passesCount=0; passCountEl.textContent='0';
+    startTs=performance.now();
+    startBtn.style.display='none';
+    passBtn.style.display='flex';
+    setIssuesEnabled(true);
+    gIssue.style.width='0%';
+    gIssue.style.background='var(--n3)';
+    requestAnimationFrame(tick);
+    vibe(10);
+  });
+
+  passBtn.addEventListener('click', ()=>{
+    if(state!=='running') return;
+    passesCount++; passCountEl.textContent=String(passesCount);
+    // petite animation
+    passBtn.style.transform='scale(1.02)';
+    setTimeout(()=>passBtn.style.transform='scale(1)',90);
+    vibe(6);
+  });
+
+  // Outcomes
+  Object.entries(issueBtns).forEach(([key,btn])=>{
+    btn.addEventListener('click', ()=>{ if(state==='running') endPassage(key); });
+  });
+
+  function setIssuesEnabled(on){ Object.values(issueBtns).forEach(b=>b.disabled=!on); }
+
+  function endPassage(issueKey){
+    cancelAnimationFrame(raf);
+    const ms = performance.now()-startTs;
+    const sec = Math.max(0, ms/1000);
+    const issueMap={
+      perte:'perte_avant', zavant:'passage_avant', zarriere:'passage_arriere',
+      manque:'tir_manque', cadre:'tir_cadre', but:'but'
+    };
+    const issue = issueMap[issueKey]||'perte_avant';
+
+    // gIssue fill to 100% with color by outcome family
+    let col='var(--n1)';
+    if(issue==='perte_avant') col='var(--n1)';
+    else if(issue==='passage_avant' || issue==='passage_arriere') col='var(--n2)';
+    else if(issue==='tir_manque' || issue==='tir_cadre') col='var(--n3)';
+    else if(issue==='but') col='var(--n4)';
+    gIssue.style.width='100%'; gIssue.style.background=col;
+
+    const niveau = computeLevel(sec, passesCount, issue);
+
+    const rec={
+      id:`P-${Date.now()}`,
+      eleve:`${names[0]}|${names[1]}|${names[2]}`.trim(),
+      temps_s: Number(sec.toFixed(1)),
+      passes: passesCount,
+      issue,
+      ordre_issue: ['perte_avant','passage_avant','passage_arriere','tir_manque','tir_cadre','but'].indexOf(issue)+1,
+      niveau_calcule: niveau,
+      seance: 1,
+      horodatage: new Date().toISOString()
+    };
+    passages.push(rec); savePassages();
+
+    $('#resultText').innerHTML = `⏱️ ${rec.temps_s}s · 📨 ${rec.passes} · ${labelIssue(issue)}<br><b style="font-size:24px; color:${lvlColor(niveau)}">Niveau ${niveau}</b>`;
+    $('#modalResult').showModal();
+
+    // Réarmement
+    state='idle';
+    startBtn.style.display='block';
+    passBtn.style.display='none';
+    setIssuesEnabled(false);
+    chronoEl.textContent='00:00.0'; chronoEl.className='chrono';
+    passCountEl.textContent='0';
+
+    // rafraîchir stats si onglet ouvert
+    if($('#view-stats').style.display!=='none') renderCharts();
+  }
+
+  function computeLevel(sec, passes, issue){
+    const {T_vite,T_lent,P_min,P_max,P_sterile} = cfg.seuils;
+    const isAvant = (issue==='perte_avant' || issue==='passage_avant' || issue==='tir_manque' || issue==='tir_cadre' || issue==='but');
+    const isSuccess = (issue==='tir_cadre' || issue==='but');
+    const isGoal = (issue==='but');
+
+    // Priorité à la fin (zone/issue) → tempo → passes
+    if(isSuccess && isAvant && sec<=T_vite && passes>=P_min && passes<=P_max) return 4; // vite efficace
+    if(isSuccess && isAvant && sec>T_vite && sec<=T_lent) return 3;                     // lent efficace
+    if(issue==='passage_arriere' || sec>T_lent || passes>=P_sterile) return 2;          // lent pas efficace
+    if(passes<=1 || issue==='perte_avant') return 1;                                    // panique
+    // fallback
+    return 2;
+  }
+
+  function labelIssue(i){
+    return ({
+      perte_avant:'Perte Z avant',
+      passage_avant:'Passage Z avant',
+      passage_arriere:'Passage Z arrière',
+      tir_manque:'Tir manqué',
+      tir_cadre:'Tir cadré',
+      but:'But marqué'
+    })[i]||i;
+  }
+
+  function vibe(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
+
+  // --- Stats / Charts ---
+  let chartTimes, chartPasses, chartIssues, gaugeAvgLevel;
+  function renderCharts(){
+    const labels = passages.map((p,i)=>`#${i+1}`);
+    const times = passages.map(p=>p.temps_s);
+    const passesArr = passages.map(p=>p.passes);
+
+    // KPIs
+    const avg = a => a.length? (a.reduce((x,y)=>x+y,0)/a.length):0;
+    const avgT = avg(times); const avgP = avg(passesArr);
+    $('#kpiTime').textContent = avgT? `${avgT.toFixed(1)} s` : '—';
+    $('#kpiPass').textContent = avgP? `${avgP.toFixed(1)}` : '—';
+    const avantCount = passages.filter(p=>p.issue!=='passage_arriere').length;
+    const buts = passages.filter(p=>p.issue==='but').length;
+    const pctAvant = passages.length? Math.round(100*buts/ passages.length):0;
+    $('#kpiAvant').textContent = passages.length? `${pctAvant}% buts` : '—';
+
+    // Average Level Gauge
+    const avgLevel = avg(passages.map(p => p.niveau_calcule));
+    if(!gaugeAvgLevel && passages.length > 0){
+      const opts = {
+        angle: -0.2, lineWidth: 0.2, radiusScale: 0.9,
+        pointer: { length: 0.5, strokeWidth: 0.05, color: 'var(--muted)' },
+        staticLabels: { font: "14px sans-serif", labels: [1, 2, 3, 4], color: "var(--muted)" },
+        staticZones: [
+           {strokeStyle: "var(--n1)", min: 1, max: 1.75},
+           {strokeStyle: "var(--n2)", min: 1.75, max: 2.5},
+           {strokeStyle: "var(--n3)", min: 2.5, max: 3.25},
+           {strokeStyle: "var(--n4)", min: 3.25, max: 4}
+        ],
+        limitMax: false, limitMin: false,
+        highDpiSupport: true
+      };
+      gaugeAvgLevel = new Gauge($('#gauge-avg-level')).setOptions(opts);
+      gaugeAvgLevel.maxValue = 4;
+      gaugeAvgLevel.setMinValue(1);
+      gaugeAvgLevel.animationSpeed = 32;
+    }
+    if(gaugeAvgLevel) gaugeAvgLevel.set(avgLevel > 0 ? avgLevel : 1);
+
+
+    // Times chart
+    if(chartTimes) chartTimes.destroy();
+    chartTimes = new Chart($('#chartTimes'), {
+      type:'line', data:{ labels, datasets:[{ label:'Temps (s)', data:times }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true } } }
+    });
+
+    // Passes chart
+    if(chartPasses) chartPasses.destroy();
+    chartPasses = new Chart($('#chartPasses'), {
+      type:'bar', data:{ labels, datasets:[{ label:'Passes (#)', data:passesArr }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true, precision:0 } } }
+    });
+
+    // Issues chart
+    const order=['perte_avant','passage_avant','passage_arriere','tir_manque','tir_cadre','but'];
+    const counts = order.map(k=>passages.filter(p=>p.issue===k).length);
+    if(chartIssues) chartIssues.destroy();
+    chartIssues = new Chart($('#chartIssues'), {
+      type:'bar', data:{ labels:order.map(labelIssue), datasets:[{ label:'Occurrences', data:counts }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true, precision:0 } } }
+    });
+  }
+
+  // --- Exports ---
+  function toCSV(){
+    const bom='\uFEFF';
+    const header=['date','attaquant1','attaquant2','attaquant3','temps_s','passes','issue','niveau'];
+    const rows = passages.map(p=>[
+      p.horodatage, names[0]||'', names[1]||'', names[2]||'', p.temps_s, p.passes, p.issue, p.niveau_calcule
+    ]);
+    const csv = [header.join(','), ...rows.map(r=>r.join(','))].join('\n');
+    return bom + csv;
+  }
+  function downloadCSV(){
+    const blob = new Blob([toCSV()], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='handball_vitesse_stats.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  $('#btnExportCSV').addEventListener('click', downloadCSV);
+  $('#btnExportCSV2').addEventListener('click', downloadCSV);
+
+  function showQR(){
+    // Recalculate KPIs for the summary
+    const times = passages.map(p=>p.temps_s);
+    const passesArr = passages.map(p=>p.passes);
+    const avg = a => a.length ? (a.reduce((x,y)=>x+y,0)/a.length) : 0;
+    const avgT = avg(times);
+    const avgP = avg(passesArr);
+    const buts = passages.filter(p=>p.issue==='but').length;
+    const avgLevel = avg(passages.map(p => p.niveau_calcule));
+
+    const summary = `Bilan Handball (${new Date().toLocaleDateString()})
+Total Actions: ${passages.length}
+Temps moyen: ${avgT.toFixed(1)}s
+Passes moy: ${avgP.toFixed(1)}
+Buts: ${buts}
+Niveau moyen: ${avgLevel.toFixed(2)}`.trim();
+
+    const dlg = $('#modalQR');
+    new QRious({ element: $('#qrCanvas'), value: summary, size: 240, level:'L' }); // level L is enough for this
+    dlg.showModal();
+  }
+  $('#btnQR').addEventListener('click', showQR);
+  $('#btnQR2').addEventListener('click', showQR);
+  $('#closeQR').addEventListener('click', ()=>$('#modalQR').close());
+  $('#closeResult').addEventListener('click', ()=>$('#modalResult').close());
+
+  // --- Paramètres (PIN) ---
+  function loadSettingsUI(){
+    $('#tVite').value = cfg.seuils.T_vite;
+    $('#tLent').value = cfg.seuils.T_lent;
+    $('#pMin').value = cfg.seuils.P_min;
+    $('#pMax').value = cfg.seuils.P_max;
+    $('#pSterile').value = cfg.seuils.P_sterile;
+  }
+  $('#btnUnlock').addEventListener('click', ()=>{
+    const pin = $('#pin').value.trim();
+    if(pin==='2025'){
+      sessionStorage.setItem('hb_unlocked','1');
+      $('#lockPane').style.display='none';
+      $('#settingsPane').style.display='block';
+    } else {
+      alert('PIN incorrect');
+    }
+  });
+  if(sessionStorage.getItem('hb_unlocked')==='1'){ $('#lockPane').style.display='none'; $('#settingsPane').style.display='block'; }
+
+  $('#btnSaveCfg').addEventListener('click', ()=>{
+    cfg.seuils.T_vite = parseFloat($('#tVite').value)||defaults.seuils.T_vite;
+    cfg.seuils.T_lent = parseFloat($('#tLent').value)||defaults.seuils.T_lent;
+    cfg.seuils.P_min = parseInt($('#pMin').value)||defaults.seuils.P_min;
+    cfg.seuils.P_max = parseInt($('#pMax').value)||defaults.seuils.P_max;
+    cfg.seuils.P_sterile = parseInt($('#pSterile').value)||defaults.seuils.P_sterile;
+    saveCfg();
+    alert('Configuration enregistrée.');
+    // Re-lock and switch tab
+    sessionStorage.removeItem('hb_unlocked');
+    $('#lockPane').style.display='block';
+    $('#settingsPane').style.display='none';
+    $('#pin').value = '';
+    switchTab('passage');
+  });
+
+  // --- Gestion élèves ---
+  function loadStudentsUI(){ $('#s1').value=names[0]||''; $('#s2').value=names[1]||''; $('#s3').value=names[2]||''; }
+  $('#btnSaveNames').addEventListener('click', ()=>{ names=[ $('#s1').value, $('#s2').value, $('#s3').value ]; saveNames(); alert('Noms enregistrés.'); });
+
+  // --- Reset général ---
+  $('#btnResetAll').addEventListener('click', ()=>$('#modalReset').showModal());
+  $('#resetCancel').addEventListener('click', ()=>$('#modalReset').close());
+  $('#resetData').addEventListener('click', ()=>{ passages=[]; savePassages(); $('#modalReset').close(); renderCharts(); alert('Données effacées.'); });
+  $('#resetAll').addEventListener('click', ()=>{ localStorage.removeItem(LS_KEY_CFG); localStorage.removeItem(LS_KEY_DATA); localStorage.removeItem(LS_KEY_NAMES); sessionStorage.removeItem('hb_unlocked'); cfg=loadCfg(); passages=loadPassages(); names=loadNames(); $('#modalReset').close(); switchTab('passage'); alert('Tout a été réinitialisé.'); });
+
+  // --- Init ---
+  function setIssuesEnabledOnLoad(){ setIssuesEnabled(false); }
+  setIssuesEnabledOnLoad();
+
+</script>
+</body>
+</html>
