@@ -80,17 +80,17 @@ return 2; // filet de sécurité
 1. **La fin domine** : un **tir cadré/but en zone avant** qualifie l’action (N3 ou N4 selon le temps).
 2. **Le tempo tranche** : si c’est réussi **et** en zone avant, **≤ T\_vite → N4**, **(T\_vite, T\_lent] → N3**.
 3. **Les passes arbitrent** la qualité de la construction : trop peu (≤1) → **panique (N1)** ; trop (≥ P\_stérile) → **stérile (N2)**.
-4. **Filets** : passage bloqué en **zone arrière** ou **au-delà de T\_lent** → **N2**.
+4. **Garde fous** : passage bloqué en **zone arrière** ou **au-delà de T\_lent** → **N2**.
 
 # Ce que gagne l’élève (et toi)
 
 * **Lisibilité** : on sait **tout de suite** quoi améliorer :
 
-  * fin mauvaise → travailler **angle/élan/zone** ;
+  * fin mauvaise → travailler **angle/élan/seul** ;
   * fin bonne mais lente → **lecture + enchaînement** ;
-  * trop de passes → **intention d’attaque** ;
-  * trop peu de passes → **conserver/regarder**.
-* **Équité** : une action “rapide mais bâclée” n’est **pas** valorisée ; une action “préparée et cadrée” est **valorisée** même si elle n’est pas ultra-rapide.
+  * trop de passes → **intention d’attaque >>> progression pas conservation** ;
+  * trop peu de passes et échec → **conserver/ s'informer**.
+* **Équité** : une action “rapide mais bâclée (tir cadré ou manqué)” n’est **pas** valorisée ; une action “préparée et cadrée” est **valorisée** même si elle n’est pas ultra-rapide.
 
 # Exemples flash (avec réglages par défaut)
 
