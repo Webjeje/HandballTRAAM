@@ -5,6 +5,8 @@
 **Format d’évaluation/entraînement pivot :** **3 attaquants** vs **1 défenseur en zone avant** + **1 défenseur en zone arrière** + **1 gardien** (GB).
 **Recueil des données :** assuré par une **application dédiée** (Voir plus bas), permettant un **feedback visuel immédiat** et des **comparaisons multi-passages**.
 
+Tester l'application en ligne:
+https://www.webjeje.com/online/webapp/traam/
 ---
 
 ## 1) Ancrage programmes & cap de formation
