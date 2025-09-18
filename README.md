@@ -23,12 +23,12 @@ https://www.webjeje.com/online/webapp/traam/
 
 ## 2) Dispositif de jeu et d’évaluation 
 
-**Terrain** :  terrain de handball en 4x4 , matérialiser **zone arrière 1/2 terrain adv**  et **zone avant 1/2 terrain ** .
+**Terrain** :  terrain de handball en 4x4 , matérialiser **zone arrière 1/2 terrain adv**  et  **zone avant 1/2 terrain ** .
 **Rôles** : 3 attaquants // 1 déf en **zone arrière** // 1 déf en **zone avant** // 1 GB // 1 **observateur**. Rotation toutes les 2-3 actions.
 **Règles spécifiques**
 
 1. Les défenseurs **restent** dans leur zone (ils défendent la profondeur/interceptions sans sortir de leur bande).
-2. Départ d’action sur **passe de l’enseignant** (ou remise neutre).
+2. Départ d’action sur **passe de l’enseignant** (ou départ élève).
 3. **Fin d’action** = **but**, **tir cadré** (arrêt GB), **tir manqué**, **perte de balle** (interception, faute, sortie).
 4. **Contrainte temporelle** : le chrono **démarre** à la **première prise de balle attaquante**, s’**arrête** à la fin d’action.
 
