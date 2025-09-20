@@ -1,4 +1,4 @@
-# Séquence détaillée – Handball 6e/5e
+# Séquence – Handball 6e/5e
 
 **Thème :** « Vitesse ou précipitation ? »
 **Intention centrale :** rendre explicite le **rendement** entre **conservation du ballon**, **progression vers la zone de marque**, et **tir en bonne disposition**, **sous contrainte temporelle**.
