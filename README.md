@@ -26,6 +26,7 @@ Le dépôt regroupe : une **introduction** au projet, un **mode d’emploi**, un
 
 ## Objectifs du projet
 
+* Intention centrale : rendre explicite le rendement entre conservation du ballon, progression vers la zone de marque, et tir en bonne disposition, sous contrainte temporelle.
 * Mettre les **élèves** au centre du recueil de données en situation d’opposition (3v1 + 1 def arrière + GB).
 * **Questionner** la croyance « plus vite = plus efficace » en croisant **temps**, **passes**, **issue**.
 * Donner des **retours immédiats** (couleurs, niveaux N1→N4) et des **statistiques** simples (moyennes, graphes, export CSV).
